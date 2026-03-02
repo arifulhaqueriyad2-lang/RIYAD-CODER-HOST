@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>লগস - {{ site_name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #fff;
+        }
+
+        .navbar {
+            background: #2d2d2d;
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #404040;
+        }
+
+        .nav-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #fff;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logs-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+
+        .log-sidebar {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .log-sidebar h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .log-file-list {
+            list-style: none;
+        }
+
+        .log-file-item {
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-file-item:hover {
+            background: #404040;
+        }
+
+        .log-file-item.active {
+            background: #667eea;
+        }
+
+        .log-file-name {
+            font-size: 0.9em;
+        }
+
+        .log-file-size {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .log-viewer {
+            background: #2d2d2d;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .log-viewer-header {
+            background: #404040;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-viewer-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .log-viewer-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .log-btn {
+            background: #4a4a4a;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .log-btn:hover {
+            background: #5a5a5a;
+        }
+
+        .log-content {
+            background: #1e1e1e;
+            padding: 20px;
+            height: 500px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .log-line {
+            color: #fff;
+            margin-bottom: 2px;
+            border-bottom: 1px solid #333;
+            padding: 2px 0;
+        }
+
+        .log-timestamp {
+            color: #ffd700;
+            margin-right: 10px;
+        }
+
+        .log-level {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-right: 10px;
+        }
+
+        .log-level.info {
+            background: #17a2b8;
+        }
+
+        .log-level.error {
+            background: #dc3545;
+        }
+
+        .log-level.warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .log-level.debug {
+            background: #6c757d;
+        }
+
+        .log-message {
+            color: #fff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px;
+            background: #404040;
+            border: 1px solid #555;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .logs-container {
+                grid-template-columns: 1fr;
+            }
+
+            .log-viewer-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">RIYAD CODER HOSTING</div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-link">ড্যাশবোর্ড</a>
+            <a href="/files" class="nav-link">ফাইল ম্যানেজার</a>
+            <a href="/console" class="nav-link">কনসোল</a>
+            <a href="/logout" class="nav-link">লগআউট</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>📊 লাইভ লগস</h1>
+            <button class="refresh-btn" onclick="refreshLogs()">
+                <span>↻</span> রিফ্রেশ
+            </button>
+        </div>
+
+        <div class="logs-container">
+            <div class="log-sidebar">
+                <h3>লগ ফাইলসমূহ</h3>
+                <div class="search-box">
+                    <input type="text" id="searchLogs" placeholder="লগ ফাইল খুঁজুন..." onkeyup="filterLogFiles()">
+                </div>
+                <ul class="log-file-list" id="logFileList">
+                    <li class="log-file-item" onclick="loadLog('system.log')">
+                        <span class="log-file-name">system.log</span>
+                        <span class="log-file-size">1.2 MB</span>
+                    </li>
+                    <li class="log-file-item" onclick="loadLog('error.log')">
+                        <span class="log-file-name">error.log</span>
+                        <span class="log-file-size">245 KB</span>
+                    </li>
+                    <li class="log-file-item" onclick="loadLog('access.log')">
+                        <span class="log-file-name">access.log</span>
+                        <span class="log-file-size">3.5 MB</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="log-viewer">
+                <div class="log-viewer-header">
+                    <div class="log-viewer-title">
+                        <h3 id="currentLogTitle">system.log</h3>
+                        <span class="log-level info">লাইভ</span>
+                    </div>
+                    <div class="log-viewer-actions">
+                        <button class="log-btn" onclick="downloadLog()">ডাউনলোড</button>
+                        <button class="log-btn" onclick="clearLog()">ক্লিয়ার</button>
+                        <button class="log-btn" onclick="toggleAutoRefresh()">অটো-রিফ্রেশ</button>
+                    </div>
+                </div>
+                
+                <div class="log-content" id="logContent">
+                    <div class="log-line">
+                        <span class="log-timestamp">2024-01-15 10:30:45</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">RIYAD CODER HOSTING সার্ভার শুরু হয়েছে</span>
+                    </div>
+                    <div class="log-line">
+                        <span class="log-timestamp">2024-01-15 10:30:46</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">ডাটাবেস কানেকশন সফল</span>
+                    </div>
+                    <div class="log-line">
+                        <span class="log-timestamp">2024-01-15 10:30:47</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">ইউজার RIYAD লগইন করেছেন</span>
+                    </div>
+                    <div class="log-line">
+                        <span class="log-timestamp">2024-01-15 10:31:12</span>
+                        <span class="log-level warning">WARNING</span>
+                        <span class="log-message">স্টোরেজ ৮০% ব্যবহার হয়েছে</span>
+                    </div>
+                    <div class="log-line">
+                        <span class="log-timestamp">2024-01-15 10:32:05</span>
+                        <span class="log-level error">ERROR</span>
+                        <span class="log-message">ফাইল আপলোড ব্যর্থ: test.py - স্টোরেজ ফুল</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLog = 'system.log';
+        let autoRefresh = true;
+        let refreshInterval;
+
+        function loadLog(filename) {
+            currentLog = filename;
+            document.getElementById('currentLogTitle').textContent = filename;
+            
+            // Update active state
+            document.querySelectorAll('.log-file-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.log-file-item').classList.add('active');
+
+            // Load log content
+            fetch(`/api/logs/${filename}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.content) {
+                        displayLogContent(data.content);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading log:', error);
+                });
+        }
+
+        function displayLogContent(content) {
+            const logContent = document.getElementById('logContent');
+            const lines = content.split('\n');
+            
+            let html = '';
+            lines.forEach(line => {
+                if (line.trim()) {
+                    // Parse log line (simplified - you might want to implement proper log parsing)
+                    const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/) || ['ন/A'];
+                    let level = 'INFO';
+                    let message = line;
+                    
+                    if (line.toLowerCase().includes('error')) level = 'error';
+                    else if (line.toLowerCase().includes('warn')) level = 'warning';
+                    else if (line.toLowerCase().includes('debug')) level = 'debug';
+                    
+                    html += `
+                        <div class="log-line">
+                            <span class="log-timestamp">${timestamp[0]}</span>
+                            <span class="log-level ${level}">${level}</span>
+                            <span class="log-message">${escapeHtml(message)}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            logContent.innerHTML = html || '<div class="empty-state">কোন লগ নেই</div>';
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function refreshLogs() {
+            if (currentLog) {
+                loadLog(currentLog);
+            } else {
+                // Refresh log list
+                fetch('/api/logs')
+                    .then(response => response.json())
+                    .then(data => {
+                        const logList = document.getElementById('logFileList');
+                        logList.innerHTML = '';
+                        
+                        data.forEach(log => {
+                            const li = document.createElement('li');
+                            li.className = 'log-file-item';
+                            li.setAttribute('onclick', `loadLog('${log.name}')`);
+                            li.innerHTML = `
+                                <span class="log-file-name">${log.name}</span>
+                                <span class="log-file-size">${log.size}</span>
+                            `;
+                            logList.appendChild(li);
+                        });
+                    });
+            }
+        }
+
+        function filterLogFiles() {
+            const search = document.getElementById('searchLogs').value.toLowerCase();
+            const items = document.querySelectorAll('.log-file-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.log-file-name').textContent.toLowerCase();
+                if (name.includes(search)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function downloadLog() {
+            if (currentLog) {
+                window.location.href = `/api/logs/${currentLog}?download=true`;
+            }
+        }
+
+        function clearLog() {
+            if (confirm('লগ ক্লিয়ার করতে চান?')) {
+                // Implement log clearing logic
+                document.getElementById('logContent').innerHTML = '<div class="empty-state">লগ ক্লিয়ার করা হয়েছে</div>';
+            }
+        }
+
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            const btn = event.target;
+            
+            if (autoRefresh) {
+                btn.style.background = '#28a745';
+                startAutoRefresh();
+            } else {
+                btn.style.background = '#4a4a4a';
+                stopAutoRefresh();
+            }
+        }
+
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(() => {
+                if (autoRefresh && currentLog) {
+                    loadLog(currentLog);
+                }
+            }, 5000);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initial load
+        loadLog('system.log');
+        startAutoRefresh();
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopAutoRefresh();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>কনসোল - {{ site_name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #fff;
+        }
+
+        .navbar {
+            background: #2d2d2d;
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #404040;
+        }
+
+        .nav-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .console-container {
+            background: #2d2d2d;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .console-header {
+            background: #404040;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .console-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .console-title h2 {
+            font-size: 1.2em;
+            font-weight: normal;
+        }
+
+        .console-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            display: inline-block;
+        }
+
+        .console-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .console-btn {
+            background: #4a4a4a;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .console-btn:hover {
+            background: #5a5a5a;
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .output-line {
+            color: #fff;
+            margin-bottom: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .output-line.error {
+            color: #ff6b6b;
+        }
+
+        .output-line.success {
+            color: #51cf66;
+        }
+
+        .input-line {
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .console-input-area {
+            background: #404040;
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .prompt {
+            color: #51cf66;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
+
+        .console-input {
+            flex: 1;
+            background: #2d2d2d;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
+
+        .console-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .send-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .process-list {
+            background: #2d2d2d;
+            border-radius: 10px;
+            margin-top: 20px;
+            padding: 15px;
+        }
+
+        .process-list h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .process-item {
+            background: #404040;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .process-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .process-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        .process-status.stopped {
+            background: #dc3545;
+        }
+
+        .process-command {
+            font-family: 'Consolas', monospace;
+            color: #ffd700;
+        }
+
+        .process-stop {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #2d2d2d;
+            color: #fff;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #404040;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .console-input-area {
+                flex-direction: column;
+            }
+
+            .process-info {
+                flex-direction: column;
+                gap: 5px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">RIYAD CODER HOSTING</div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-link">ড্যাশবোর্ড</a>
+            <a href="/files" class="nav-link">ফাইল ম্যানেজার</a>
+            <a href="/logs" class="nav-link">লগস</a>
+            <a href="/logout" class="nav-link">লগআউট</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('console')">কনসোল</button>
+            <button class="tab" onclick="switchTab('processes')">একটিভ প্রসেস</button>
+        </div>
+
+        <div id="consoleTab" style="display: block;">
+            <div class="console-container">
+                <div class="console-header">
+                    <div class="console-title">
+                        <span class="console-status"></span>
+                        <h2>ইন্টারঅ্যাকটিভ কনসোল - {{ username }}</h2>
+                    </div>
+                    <div class="console-actions">
+                        <button class="console-btn" onclick="clearConsole()">ক্লিয়ার</button>
+                        <button class="console-btn" onclick="copyConsole()">কপি</button>
+                    </div>
+                </div>
+                
+                <div class="console-output" id="consoleOutput">
+                    <div class="output-line success">RIYAD CODER HOSTING কনসোলে স্বাগতম!</div>
+                    <div class="output-line">টাইপ করুন 'help' কমান্ডের তালিকা দেখতে</div>
+                    <div class="output-line">----------------------------------------</div>
+                </div>
+
+                <div class="console-input-area">
+                    <span class="prompt">$</span>
+                    <input type="text" class="console-input" id="consoleInput" placeholder="কমান্ড লিখুন..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendCommand()">রান</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="processesTab" style="display: none;">
+            <div class="process-list">
+                <h3>চলমান প্রসেসসমূহ</h3>
+                <div id="processList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeProcesses = {};
+        let currentProcessId = null;
+
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'console') {
+                document.getElementById('consoleTab').style.display = 'block';
+                document.getElementById('processesTab').style.display = 'none';
+                tabs[0].classList.add('active');
+                loadProcesses();
+            } else {
+                document.getElementById('consoleTab').style.display = 'none';
+                document.getElementById('processesTab').style.display = 'block';
+                tabs[1].classList.add('active');
+                loadProcesses();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendCommand();
+            }
+        }
+
+        async function sendCommand() {
+            const input = document.getElementById('consoleInput');
+            const command = input.value.trim();
+            
+            if (command === '') return;
+
+            // Add command to output
+            const output = document.getElementById('consoleOutput');
+            output.innerHTML += `<div class="input-line">$ ${command}</div>`;
+            output.scrollTop = output.scrollHeight;
+
+            // Clear input
+            input.value = '';
+
+            // Send command to server
+            try {
+                const response = await fetch('/api/console/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ command: command })
+                });
+
+                const data = await response.json();
+                
+                if (data.output) {
+                    const lines = data.output.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            const className = data.error ? 'error' : 'output-line';
+                            output.innerHTML += `<div class="${className}">${escapeHtml(line)}</div>`;
+                        }
+                    });
+                }
+                
+                output.scrollTop = output.scrollHeight;
+            } catch (error) {
+                output.innerHTML += `<div class="error">Error: ${error}</div>`;
+            }
+        }
+
+        function clearConsole() {
+            const output = document.getElementById('consoleOutput');
+            output.innerHTML = '<div class="output-line success">কনসোল ক্লিয়ার করা হয়েছে</div>';
+        }
+
+        function copyConsole() {
+            const output = document.getElementById('consoleOutput');
+            const text = output.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('কনসোল আউটপুট কপি করা হয়েছে');
+            });
+        }
+
+        async function loadProcesses() {
+            try {
+                // This would need an API endpoint to get active processes
+                // For now, we'll show a placeholder
+                const processList = document.getElementById('processList');
+                processList.innerHTML = '<div class="process-item">কোন চলমান প্রসেস নেই</div>';
+            } catch (error) {
+                console.error('Error loading processes:', error);
+            }
+        }
+
+        function stopProcess(processId) {
+            fetch(`/api/process/${processId}/stop`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadProcesses();
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Check for running process output
+        function checkProcessOutput() {
+            if (currentProcessId) {
+                fetch(`/api/process/${currentProcessId}/output`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.outputs && data.outputs.length > 0) {
+                            const output = document.getElementById('consoleOutput');
+                            data.outputs.forEach(line => {
+                                output.innerHTML += `<div class="output-line">${escapeHtml(line)}</div>`;
+                            });
+                            output.scrollTop = output.scrollHeight;
+                        }
+                        
+                        if (!data.completed) {
+                            setTimeout(checkProcessOutput, 1000);
+                        }
+                    });
+            }
+        }
+
+        // Auto refresh processes every 5 seconds
+        setInterval(loadProcesses, 5000);
+    </script>
+</body>
+</html>

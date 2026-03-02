@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ফাইল আপলোড - {{ site_name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .upload-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upload-header p {
+            color: #666;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-name {
+            font-weight: 500;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .remove-file {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        .upload-progress {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+        }
+
+        .btn-upload {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-upload:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .allowed-files {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .allowed-files h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .file-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .file-type {
+            padding: 5px 10px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .upload-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">RIYAD CODER HOSTING</div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-link">ড্যাশবোর্ড</a>
+            <a href="/files" class="nav-link">ফাইল ম্যানেজার</a>
+            <a href="/logout" class="nav-link">লগআউট</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="upload-card">
+            <div class="upload-header">
+                <h1>📤 ফাইল আপলোড</h1>
+                <p>আপনার ফাইল আপলোড করুন। ZIP ফাইল অটোমেটিক এক্সট্রাক্ট হবে।</p>
+            </div>
+
+            <form id="uploadForm" method="POST" enctype="multipart/form-data" action="/upload">
+                <div class="upload-area" id="dropArea">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">ফাইল নির্বাচন করুন বা এখানে ড্র্যাগ করুন</div>
+                    <div class="upload-hint">সাপোর্টেড: .py, .js, .zip, .txt, .html, .css, .json</div>
+                </div>
+
+                <input type="file" name="file" id="fileInput" class="file-input" multiple>
+
+                <div class="file-list" id="fileList"></div>
+
+                <div class="upload-progress" id="uploadProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+
+                <button type="submit" class="btn-upload" id="uploadBtn" disabled>আপলোড শুরু করুন</button>
+            </form>
+
+            <div class="allowed-files">
+                <h3>সমর্থিত ফাইল টাইপ:</h3>
+                <div class="file-types">
+                    <span class="file-type">.py (Python)</span>
+                    <span class="file-type">.js (JavaScript)</span>
+                    <span class="file-type">.zip (Archive)</span>
+                    <span class="file-type">.html (Web)</span>
+                    <span class="file-type">.css (Style)</span>
+                    <span class="file-type">.json (Data)</span>
+                    <span class="file-type">.txt (Text)</span>
+                    <span class="file-type">.md (Markdown)</span>
+                    <span class="file-type">.sh (Shell)</span>
+                    <span class="file-type">requirements.txt</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const uploadForm = document.getElementById('uploadForm');
+
+        let selectedFiles = [];
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop area on drag over
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        // Handle click to select files
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection via input
+        fileInput.addEventListener('change', handleFiles);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight() {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files: files } });
+        }
+
+        function handleFiles(e) {
+            const files = Array.from(e.target.files);
+            
+            files.forEach(file => {
+                // Check file extension
+                const extension = file.name.split('.').pop().toLowerCase();
+                const allowed = ['py', 'js', 'zip', 'txt', 'html', 'css', 'json', 'md', 'sh'];
+                
+                if (allowed.includes(extension) || file.name === 'requirements.txt') {
+                    selectedFiles.push(file);
+                } else {
+                    alert(`${file.name} - এই ফাইল টাইপ সাপোর্টেড নয়`);
+                }
+            });
+
+            updateFileList();
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            
+            if (selectedFiles.length > 0) {
+                uploadBtn.disabled = false;
+                
+                selectedFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    
+                    const fileInfo = document.createElement('div');
+                    fileInfo.className = 'file-info';
+                    
+                    const fileIcon = document.createElement('span');
+                    fileIcon.textContent = getFileIcon(file.name);
+                    fileIcon.style.fontSize = '1.2em';
+                    
+                    const fileName = document.createElement('span');
+                    fileName.className = 'file-name';
+                    fileName.textContent = file.name;
+                    
+                    const fileSize = document.createElement('span');
+                    fileSize.className = 'file-size';
+                    fileSize.textContent = formatFileSize(file.size);
+                    
+                    fileInfo.appendChild(fileIcon);
+                    fileInfo.appendChild(fileName);
+                    fileInfo.appendChild(fileSize);
+                    
+                    const removeBtn = document.createElement('span');
+                    removeBtn.className = 'remove-file';
+                    removeBtn.innerHTML = '❌';
+                    removeBtn.onclick = () => {
+                        selectedFiles.splice(index, 1);
+                        updateFileList();
+                    };
+                    
+                    fileItem.appendChild(fileInfo);
+                    fileItem.appendChild(removeBtn);
+                    
+                    fileList.appendChild(fileItem);
+                });
+            } else {
+                uploadBtn.disabled = true;
+            }
+        }
+
+        function getFileIcon(filename) {
+            if (filename.endsWith('.py')) return '🐍';
+            if (filename.endsWith('.js')) return '📜';
+            if (filename.endsWith('.html')) return '🌐';
+            if (filename.endsWith('.css')) return '🎨';
+            if (filename.endsWith('.zip')) return '📦';
+            if (filename === 'requirements.txt') return '📋';
+            return '📄';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (selectedFiles.length === 0) {
+                alert('কোন ফাইল নির্বাচন করা হয়নি');
+                return;
+            }
+
+            uploadProgress.style.display = 'block';
+            uploadBtn.disabled = true;
+
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('file', file);
+            });
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                    onUploadProgress: (progressEvent) => {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        progressFill.style.width = percentCompleted + '%';
+                        progressText.textContent = percentCompleted + '%';
+                    }
+                });
+
+                if (response.ok) {
+                    alert('ফাইল সফলভাবে আপলোড হয়েছে!');
+                    window.location.href = '/files';
+                } else {
+                    throw new Error('আপলোড ব্যর্থ হয়েছে');
+                }
+            } catch (error) {
+                alert('এরর: ' + error.message);
+                uploadProgress.style.display = 'none';
+                uploadBtn.disabled = false;
+            }
+        });
+
+        // Simulate progress (since fetch doesn't support upload progress)
+        // In production, you might want to use XMLHttpRequest for progress tracking
+        function simulateProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>
