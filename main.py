@@ -25,7 +25,7 @@ from telebot import types
 from flask import Flask
 
 # ================= CONFIG =================
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8793489806:AAEagsjwkv85ERu-S3iiImGCh0UxDkZyABA")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8793489806:AAHnabX4jEFd2xQhIkU7Gr69Tb2Jwmtd7bg")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "6417430059"))
 CLONED_BOT = os.getenv("CLONED_BOT", "false").lower() == "true"
 MAX_FREE_BOTS = 3
