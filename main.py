@@ -1035,7 +1035,7 @@ def reply_menu(user_id):
 def premium_menu(user_id):
     markup = types.InlineKeyboardMarkup()
     current_price = settings.get("price", 1)
-    markup.row(types.InlineKeyboardButton("👤 Contact Owner @RIYAD_CODER", url="https://t.me/RIYAD_CODER_CHATS"))
+    markup.row(types.InlineKeyboardButton("👤 Contact Owner @Frexy1only", url="https://t.me/Frexy1only_CHATS"))
     markup.row(types.InlineKeyboardButton(f"💎 Buy Premium ({current_price} XTR)", callback_data="PREMIUM_PAY_INVOICE"))
     return markup
 
@@ -1761,7 +1761,7 @@ Current Price: **{settings.get('price', 1)} XTR**
     
     elif text == "📞 Contact Owner":
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("Message Owner", url="https://t.me/RIYAD_CODER"))
+        markup.add(types.InlineKeyboardButton("Message Owner", url="https://t.me/Frexy1only"))
         
         bot.send_message(
             message.chat.id, 
@@ -2245,7 +2245,7 @@ def callback_query(call):
                 blocked_users[t] = True
                 save_data(BLOCK_FILE, blocked_users)
                 try:
-                    bot.send_message(t, "🚫 You have been blocked by an admin. Contact @RIYAD_CODER for help.")
+                    bot.send_message(t, "🚫 You have been blocked by an admin. Contact @Frexy1only for help.")
                 except:
                     pass
                 
@@ -2785,7 +2785,7 @@ def callback_query(call):
                 try:
                     bot.send_message(user_id_req, f"😞 **Your clone request was rejected.**\n\n"
                                                  f"**Bot:** `@{safe_markdown(bot_name)}`\n\n"
-                                                 f"Contact @ RIYAD_CODER questions.", parse_mode="Markdown")
+                                                 f"Contact @ Frexy1only questions.", parse_mode="Markdown")
                 except:
                     pass
                 
